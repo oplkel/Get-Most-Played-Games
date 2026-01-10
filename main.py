@@ -1,3 +1,13 @@
+"""
+--[=[
+
+Author: oplkel
+Version: 0.0.2
+Updated: January 10, 2026
+
+]=]
+"""
+
 ## ik this is prob messy code but idc
 
 from typing import List, Dict, Optional
@@ -5,12 +15,19 @@ import pip._vendor.requests as requests
 import time
 import json
 
+maxRetries = 5
+
 DataObject = Dict[str, int | str]
-FinalDataObject = Dict[str, int | str]
+##FinalDataObject = Dict[str, int | str]
 
-finalData: List[FinalDataObject] = []
+##finalData: List[FinalDataObject] = []
 
-def fetch(url: str, parameters = None, retries = 5, delay = 1) -> Optional[dict]:
+with open("data.json", "r", encoding="utf-8") as dataJson:
+    currentData = json.load(dataJson)
+
+total = len(currentData)
+
+def fetch(url: str, parameters = None, retries = maxRetries, delay = 1) -> Optional[dict]:
     for attempt in range(retries):
         try:
             response = requests.get(url, params = parameters, timeout = 10)
@@ -50,42 +67,69 @@ def getGameName(placeId: int) -> str:
 def convertMinutesToHours(minutes: int) -> float:
     return minutes / 60
 
-def writeJson(data):
-    with open("output.json" , "r", encoding="utf-8") as jsonFile:
-        fileData = json.loads(jsonFile.read())
+def writeJson(data: dict["Id": str, "GameName": str, "TimePlayed": str]):
+    with open("output.json" , "r", encoding="utf-8") as outputJson:
+        fileData = json.loads(outputJson.read())
 
     fileData.append(data)
 
-    with open("output.json" , "w", encoding="utf-8") as jsonFile:
-        jsonFile.write(json.dumps(fileData))
+    with open("output.json" , "w", encoding="utf-8") as outputJson:
+        outputJson.write(json.dumps(fileData))
 
-with open("data.json", "r", encoding="utf-8") as dataJson:
-    currentData = json.load(dataJson)
-
-total = len(currentData)
-
-for i, entry in enumerate(currentData, start=1):
-    print(f"Processing {i}/{total}")
-
-    placeId = getPlaceId(entry["id"])
-    gameName = getGameName(placeId)
-    hours = convertMinutesToHours(entry["time_played"])
-
-    if not placeId:
-        print(f"[!] Skipping universe {entry['id']}")
-        continue
-
+def outputData(placeId: str, gameName: str, hours: float) -> None:
     writeJson({
         "Id": placeId,
         "GameName": gameName,
         "TimePlayed": f"{hours:.2f}hrs",
     })
 
+    """
     finalData.append({
         "Id": placeId,
         "GameName": gameName,
         "TimePlayed": f"{hours:.2f}hrs",
     })
+    """
     time.sleep(0.2)
 
+def printExtra() -> None:
+    with open("output.json" , "r", encoding="utf-8") as outputJson:
+        fileData = json.loads(outputJson.read())
+
+    print(f"Your most played game was {fileData[0]["GameName"]} with {fileData[0]["TimePlayed"]}")
+    print(f"Your least played game was {fileData[len(fileData)]} with {fileData[len(fileData)]["TimePlayed"]}")
+
+with open("output.json" , "w", encoding="utf-8") as outputJson:
+    outputJson.write(json.dumps([]))
+
+if isinstance(currentData, dict):
+    for i, v in enumerate(currentData, 1):
+        print(f"Processing {i}/{total}")
+
+        placeId = getPlaceId(v["id"])
+        gameName = getGameName(placeId)
+        hours = convertMinutesToHours(v["time_played"])
+
+        if not placeId:
+            print(f"[!] Skipping universe {v["id"]}")
+            continue
+
+        outputData(placeId, gameName, hours)
+        time.sleep(0.2)
+elif isinstance(currentData, list):
+    for i, v in enumerate(currentData, 1):
+        print(f"Processing {i}/{total}")
+
+        placeId = getPlaceId(v[0])
+        gameName = getGameName(placeId)
+        hours = convertMinutesToHours(v[1])
+
+        if not placeId:
+            print(f"[!] Skipping universe {id[1]}")
+            continue
+
+        outputData(placeId, gameName, hours)
+        time.sleep(0.2)
+
 print(f"Completed processing {total}/{total}, the data was outputted into output.json")
+printExtra()
