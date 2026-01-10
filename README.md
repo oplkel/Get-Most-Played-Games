@@ -14,6 +14,7 @@ This is very self-explanatory. The script uses the data given to it from the `da
 - You will have to provide it with the data since I am pretty sure that RoPro uses your Roblox cookies to be able to fetch the data from its database.
 - The more data, the more time it takes to process the data.
 - Progress is constantly outputted for progress updates.
+- RoProxy API endpoints are used instead of Roblox's because it is more reliable.
 
 ## How to fetch the raw data
 
