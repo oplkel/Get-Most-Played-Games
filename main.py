@@ -41,7 +41,7 @@ def fetch(url: str, parameters = None, retries = maxRetries, delay = requestDela
             
             time.sleep(delay * (attempt + 1))
 
-def getPlaceId(universeId: str) -> Optional[int]:
+def getPlaceIdFromUniverseId(universeId: str) -> Optional[int]:
     data = fetch(
         "https://games.roproxy.com/v1/games",
         parameters={"universeIds": universeId}
@@ -68,7 +68,7 @@ def getGameName(placeId: int) -> str:
 def convertMinutesToHours(minutes: int) -> float:
     return minutes / 60
 
-def writeJson(data: dict["Id": str, "GameName": str, "TimePlayed": str]):
+def writeJson(data: dict["UniverseId": int, "PlaceId": int, "GameName": str, "Creator": str, "TimePlayed": str]):
     with open("output.json" , "r", encoding="utf-8") as outputJson:
         fileData = json.loads(outputJson.read())
 
@@ -77,19 +77,18 @@ def writeJson(data: dict["Id": str, "GameName": str, "TimePlayed": str]):
     with open("output.json" , "w", encoding="utf-8") as outputJson:
         outputJson.write(json.dumps(fileData))
 
-def outputData(placeId: str, gameName: str, hours: float) -> None:
-    writeJson({
-        "Id": placeId,
+def outputData(universeId: int, placeId: int, gameName: str, creator: str, hours: float) -> None:
+    data = {
+        "UniverseId": universeId,
+        "PlaceId": placeId,
         "GameName": gameName,
+        "Creator": creator,
         "TimePlayed": f"{hours:.2f} hours",
-    })
+    }
 
+    writeJson(data)
     """
-    finalData.append({
-        "Id": placeId,
-        "GameName": gameName,
-        "TimePlayed": f"{hours:.2f} hours",
-    })
+    finalData.append(data)
     """
     time.sleep(0.2)
 
@@ -116,7 +115,7 @@ if isinstance(currentData, dict):
     for i, v in enumerate(currentData, 1):
         print(f"Processing {i}/{total}")
 
-        placeId = getPlaceId(v["id"])
+        placeId = getPlaceIdFromUniverseId(v["id"])
         gameName = getGameName(placeId)
         hours = convertMinutesToHours(v["time_played"])
 
@@ -124,13 +123,13 @@ if isinstance(currentData, dict):
             print(f"[!] Skipping universe {v["id"]}")
             continue
 
-        outputData(placeId, gameName, hours)
+        outputData(int(v["id"]), placeId, gameName, hours)
         time.sleep(0.2)
 elif isinstance(currentData, list):
     for i, v in enumerate(currentData, 1):
         print(f"Processing {i}/{total}")
 
-        placeId = getPlaceId(v[0])
+        placeId = getPlaceIdFromUniverseId(v[0])
         gameName = getGameName(placeId)
         hours = convertMinutesToHours(v[1])
 
@@ -138,7 +137,7 @@ elif isinstance(currentData, list):
             print(f"[!] Skipping universe {id[1]}")
             continue
 
-        outputData(placeId, gameName, hours)
+        outputData(int(v[0]), placeId, gameName, hours)
         time.sleep(0.2)
 else:
     print("An error ocurred when iterating through the raw data: invalid data structure")
