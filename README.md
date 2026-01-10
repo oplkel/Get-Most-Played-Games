@@ -15,6 +15,7 @@ This is very self-explanatory. The script uses the data given to it from the `da
 - The more data, the more time it takes to process the data.
 - Progress is constantly outputted for progress updates.
 - RoProxy API endpoints are used instead of Roblox's because it is more reliable.
+- [/] after the creator's name means that they are verified.
 
 ## How to fetch the raw data
 
@@ -41,8 +42,7 @@ OR
 2. Open the project folder in a code editor (VS Code recommended).
 3. Paste raw data into `data.json`.
 4. Run the `main.py` file.
-5. Look at `output.json` - wait until it has finished.
-
-### More features may be added in the future.
+5. Wait until the processing has finished but `output.json` should have some data.
+6. (Optional) Right click and format document on the `output.json` file to make it look nicer.
 
 oplkel :P
