@@ -16,6 +16,7 @@ import time
 import json
 
 maxRetries = 5
+requestDelay = 1
 
 DataObject = Dict[str, int | str]
 ##FinalDataObject = Dict[str, int | str]
@@ -27,7 +28,7 @@ with open("data.json", "r", encoding="utf-8") as dataJson:
 
 total = len(currentData)
 
-def fetch(url: str, parameters = None, retries = maxRetries, delay = 1) -> Optional[dict]:
+def fetch(url: str, parameters = None, retries = maxRetries, delay = requestDelay) -> Optional[dict]:
     for attempt in range(retries):
         try:
             response = requests.get(url, params = parameters, timeout = 10)
@@ -80,14 +81,14 @@ def outputData(placeId: str, gameName: str, hours: float) -> None:
     writeJson({
         "Id": placeId,
         "GameName": gameName,
-        "TimePlayed": f"{hours:.2f}hrs",
+        "TimePlayed": f"{hours:.2f} hours",
     })
 
     """
     finalData.append({
         "Id": placeId,
         "GameName": gameName,
-        "TimePlayed": f"{hours:.2f}hrs",
+        "TimePlayed": f"{hours:.2f} hours",
     })
     """
     time.sleep(0.2)
@@ -96,8 +97,17 @@ def printExtra() -> None:
     with open("output.json" , "r", encoding="utf-8") as outputJson:
         fileData = json.loads(outputJson.read())
 
-    print(f"Your most played game was {fileData[0]["GameName"]} with {fileData[0]["TimePlayed"]}")
-    print(f"Your least played game was {fileData[len(fileData)]} with {fileData[len(fileData)]["TimePlayed"]}")
+    mostPlayed = fileData[0]
+    leastPlayed = fileData[total - 1]
+    totalPlayed = 0
+
+    for v in fileData:
+        totalPlayed += float(str.split(v["TimePlayed"], " ")[0])
+        time.sleep(0.01)
+
+    print(f"Your most played game was {mostPlayed["GameName"]} with {mostPlayed["TimePlayed"]}")
+    print(f"Your least played game was {leastPlayed["GameName"]} with {leastPlayed["TimePlayed"]}")
+    print(f"You played {round(totalPlayed, 2)} hours in total")
 
 with open("output.json" , "w", encoding="utf-8") as outputJson:
     outputJson.write(json.dumps([]))
@@ -130,6 +140,8 @@ elif isinstance(currentData, list):
 
         outputData(placeId, gameName, hours)
         time.sleep(0.2)
+else:
+    print("An error ocurred when iterating through the raw data: invalid data structure")
 
 print(f"Completed processing {total}/{total}, the data was outputted into output.json")
 printExtra()
