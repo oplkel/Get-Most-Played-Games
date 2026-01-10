@@ -2,7 +2,7 @@
 --[=[
 
 Author: oplkel
-Version: 0.0.2
+Version: 0.1.0
 Updated: January 10, 2026
 
 ]=]
@@ -10,7 +10,6 @@ Updated: January 10, 2026
 
 ## ik this is prob messy code but idc
 
-from typing import List, Dict, Optional
 import pip._vendor.requests as requests
 import time
 import json
@@ -18,17 +17,12 @@ import json
 maxRetries = 5
 requestDelay = 1
 
-DataObject = Dict[str, int | str]
-##FinalDataObject = Dict[str, int | str]
-
-##finalData: List[FinalDataObject] = []
-
 with open("data.json", "r", encoding="utf-8") as dataJson:
     currentData = json.load(dataJson)
 
 total = len(currentData)
 
-def fetch(url: str, parameters = None, retries = maxRetries, delay = requestDelay) -> Optional[dict]:
+def fetch(url: str, parameters = None, retries = maxRetries, delay = requestDelay) -> dict | None:
     for attempt in range(retries):
         try:
             response = requests.get(url, params = parameters, timeout = 10)
@@ -37,33 +31,20 @@ def fetch(url: str, parameters = None, retries = maxRetries, delay = requestDela
         except requests.RequestException as e:
             if attempt == retries - 1:
                 print(f"[X] Failed after {retries} retries: {url}")
-                return None
+                return
             
             time.sleep(delay * (attempt + 1))
 
-def getPlaceIdFromUniverseId(universeId: str) -> Optional[int]:
+def getGameData(universeId: str) -> int | None:
     data = fetch(
         "https://games.roproxy.com/v1/games",
         parameters={"universeIds": universeId}
     )
 
     if not data:
-        return None
+        return
 
-    try:
-        return data["data"][0]["rootPlaceId"]
-    except (KeyError, IndexError):
-        return None
-
-def getGameName(placeId: int) -> str:
-    data = fetch(
-        f"https://economy.roproxy.com/v2/assets/{placeId}/details"
-    )
-
-    if not data:
-        return "Unknown Game"
-
-    return data.get("Name", "Unknown Game")
+    return data["data"][0]
 
 def convertMinutesToHours(minutes: int) -> float:
     return minutes / 60
@@ -77,19 +58,16 @@ def writeJson(data: dict["UniverseId": int, "PlaceId": int, "GameName": str, "Cr
     with open("output.json" , "w", encoding="utf-8") as outputJson:
         outputJson.write(json.dumps(fileData))
 
-def outputData(universeId: int, placeId: int, gameName: str, creator: str, hours: float) -> None:
+def outputData(universeId: int, placeId: int, gameName: str, creatorName: str, hours: float) -> None:
     data = {
         "UniverseId": universeId,
         "PlaceId": placeId,
         "GameName": gameName,
-        "Creator": creator,
+        "Creator": creatorName,
         "TimePlayed": f"{hours:.2f} hours",
     }
 
     writeJson(data)
-    """
-    finalData.append(data)
-    """
     time.sleep(0.2)
 
 def printExtra() -> None:
@@ -115,29 +93,51 @@ if isinstance(currentData, dict):
     for i, v in enumerate(currentData, 1):
         print(f"Processing {i}/{total}")
 
-        placeId = getPlaceIdFromUniverseId(v["id"])
-        gameName = getGameName(placeId)
-        hours = convertMinutesToHours(v["time_played"])
+        gameData = getGameData(v["id"])
 
-        if not placeId:
-            print(f"[!] Skipping universe {v["id"]}")
+        if not gameData:
+            print(f"[!] Skipping universe {id[1]}")
             continue
 
-        outputData(int(v["id"]), placeId, gameName, hours)
+        placeId = gameData.get("rootPlaceId", 0)
+        gameName = gameData.get("name", "Unknown Game")
+        creator = gameData.get("creator", "Unknown Creator")
+        creatorName = creator.get("name", "Unknown Creator")
+        hours = convertMinutesToHours(v["time_played"])
+
+        if creator != "Unknown Creator":
+            if creator["type"] == "user":
+                creatorName = f"@{creatorName}"
+
+            if creator["hasVerifiedBadge"] == True:
+                creatorName = f"{creatorName} [✔]"
+
+        outputData(int(v["id"]), placeId, gameName, creatorName, hours)
         time.sleep(0.2)
 elif isinstance(currentData, list):
     for i, v in enumerate(currentData, 1):
         print(f"Processing {i}/{total}")
 
-        placeId = getPlaceIdFromUniverseId(v[0])
-        gameName = getGameName(placeId)
-        hours = convertMinutesToHours(v[1])
+        gameData = getGameData(v[0])
 
-        if not placeId:
+        if not gameData:
             print(f"[!] Skipping universe {id[1]}")
             continue
 
-        outputData(int(v[0]), placeId, gameName, hours)
+        placeId = gameData.get("rootPlaceId", 0)
+        gameName = gameData.get("name", "Unknown Game")
+        creator = gameData.get("creator", "Unknown Creator")
+        creatorName = creator.get("name", "Unknown Creator")
+        hours = convertMinutesToHours(v[1])
+
+        if creator != "Unknown Creator":
+            if creator["type"] == "User":
+                creatorName = f"@{creatorName}"
+
+            if creator["hasVerifiedBadge"] == True:
+                creatorName = f"{creatorName} [/]"
+
+        outputData(int(v[0]), placeId, gameName, creatorName, hours)
         time.sleep(0.2)
 else:
     print("An error ocurred when iterating through the raw data: invalid data structure")
