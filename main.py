@@ -3,6 +3,7 @@
 
 Author: oplkel
 Version: 0.1.0
+Notes: For README.md go to https://github.com/oplkel/Get-Most-Played-Games
 Updated: January 10, 2026
 
 ]=]
@@ -30,7 +31,7 @@ def fetch(url: str, parameters = None, retries = maxRetries, delay = requestDela
             return response.json()
         except requests.RequestException as e:
             if attempt == retries - 1:
-                print(f"[X] Failed after {retries} retries: {url}")
+                print(f"[X] Failed after {retries} retries: {url}") ## It failed to get game data after the max amount of retries
                 return
             
             time.sleep(delay * (attempt + 1))
@@ -38,7 +39,7 @@ def fetch(url: str, parameters = None, retries = maxRetries, delay = requestDela
 def getGameData(universeId: str) -> int | None:
     data = fetch(
         "https://games.roproxy.com/v1/games",
-        parameters={"universeIds": universeId}
+        parameters = { ["universeIds"]: universeId }
     )
 
     if not data:
@@ -52,7 +53,7 @@ def getGameData(universeId: str) -> int | None:
 def convertMinutesToHours(minutes: int) -> float:
     return minutes / 60
 
-def writeJson(data: dict["UniverseId": int, "PlaceId": int, "GameName": str, "Creator": str, "TimePlayed": str]):
+def writeJson(data: dict[ ["UniverseId"]: int, ["PlaceId"]: int, ["GameName"]: str, ["Creator"]: str, ["TimePlayed"]: str] ):
     with open("output.json" , "r", encoding="utf-8") as outputJson:
         fileData = json.loads(outputJson.read())
 
@@ -63,11 +64,11 @@ def writeJson(data: dict["UniverseId": int, "PlaceId": int, "GameName": str, "Cr
 
 def outputData(universeId: int, placeId: int, gameName: str, creatorName: str, hours: float) -> None:
     data = {
-        "UniverseId": universeId,
-        "PlaceId": placeId,
-        "GameName": gameName,
-        "Creator": creatorName,
-        "TimePlayed": f"{hours:.2f} hours",
+        ["UniverseId"]: universeId,
+        ["PlaceId"]: placeId,
+        ["GameName"]: gameName,
+        ["Creator"]: creatorName,
+        ["TimePlayed"]: f"{hours:.2f} hours",
     }
 
     writeJson(data)
@@ -104,7 +105,7 @@ if isinstance(currentData[0], dict):
 
         placeId = gameData.get("rootPlaceId", 0)
         gameName = gameData.get("name", "Unknown Game")
-        creator = gameData.get("creator", "Unknown Creator")
+        creator = gameData.get("creator", {}})
         creatorName = creator.get("name", "Unknown Creator")
         hours = convertMinutesToHours(v["time_played"])
 
@@ -113,7 +114,7 @@ if isinstance(currentData[0], dict):
                 creatorName = f"@{creatorName}"
 
             if creator["hasVerifiedBadge"] == True:
-                creatorName = f"{creatorName} [✔]"
+                creatorName = f"{creatorName} [/]"
 
         outputData(int(v["id"]), placeId, gameName, creatorName, hours)
         time.sleep(0.2)
@@ -129,7 +130,7 @@ elif isinstance(currentData[0], list):
 
         placeId = gameData.get("rootPlaceId", 0)
         gameName = gameData.get("name", "Unknown Game")
-        creator = gameData.get("creator", "Unknown Creator")
+        creator = gameData.get("creator", {})
         creatorName = creator.get("name", "Unknown Creator")
         hours = convertMinutesToHours(v[1])
 
