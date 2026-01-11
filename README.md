@@ -49,7 +49,7 @@ Why should you use this instead of the existing UI that shows this information a
 
 ### How to use? 📥
 1. Go the [latest release](https://github.com/oplkel/Get-Most-Played-Games/releases/latest) of the project.
-2. Download the `.zip` file.
+2. Download the `GetMostPlayedGames.zip` file.
 3. Extract and open the project folder in a code editor (VS Code recommended).
 4. Paste raw data into `data.json`.
 5. Run the `main.py` file.
