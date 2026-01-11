@@ -44,7 +44,10 @@ def getGameData(universeId: str) -> int | None:
     if not data:
         return
 
-    return data["data"][0]
+    try:
+        return data["data"][0]
+    except:
+        return
 
 def convertMinutesToHours(minutes: int) -> float:
     return minutes / 60
@@ -75,7 +78,7 @@ def printExtra() -> None:
         fileData = json.loads(outputJson.read())
 
     mostPlayed = fileData[0]
-    leastPlayed = fileData[total - 1]
+    leastPlayed = fileData[len(fileData) - 1]
     totalPlayed = 0
 
     for v in fileData:
@@ -89,14 +92,14 @@ def printExtra() -> None:
 with open("output.json" , "w", encoding="utf-8") as outputJson:
     outputJson.write(json.dumps([]))
 
-if isinstance(currentData, dict):
+if isinstance(currentData[0], dict):
     for i, v in enumerate(currentData, 1):
         print(f"Processing {i}/{total}")
 
         gameData = getGameData(v["id"])
 
         if not gameData:
-            print(f"[!] Skipping universe {id[1]}")
+            print(f"[!] Skipping universe {v["id"]}: unknown game")
             continue
 
         placeId = gameData.get("rootPlaceId", 0)
@@ -114,14 +117,14 @@ if isinstance(currentData, dict):
 
         outputData(int(v["id"]), placeId, gameName, creatorName, hours)
         time.sleep(0.2)
-elif isinstance(currentData, list):
+elif isinstance(currentData[0], list):
     for i, v in enumerate(currentData, 1):
         print(f"Processing {i}/{total}")
 
         gameData = getGameData(v[0])
 
         if not gameData:
-            print(f"[!] Skipping universe {id[1]}")
+            print(f"[!] Skipping universe ID: {v[0]}: unknown game")
             continue
 
         placeId = gameData.get("rootPlaceId", 0)
