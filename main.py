@@ -23,6 +23,14 @@ with open("data.json", "r", encoding="utf-8") as dataJson:
 
 total = len(currentData)
 
+def formatData(data: dict | list):
+    if isinstance(data, dict):
+        return data["id"], data["time_played"]
+    elif isinstance(data, list):
+        return data[0], data[1]
+    else:
+        print("An error ocurred when iterating through the raw data: invalid data structure") ## Your data format is invalid; look at the guides in README.md.
+
 def fetch(url: str, parameters = None, retries = maxRetries, delay = requestDelay) -> dict | None:
     for attempt in range(retries):
         try:
@@ -36,10 +44,10 @@ def fetch(url: str, parameters = None, retries = maxRetries, delay = requestDela
             
             time.sleep(delay * (attempt + 1))
 
-def getGameData(universeId: str) -> int | None:
+def getGameData(universeId: str) -> None | dict:
     data = fetch(
         "https://games.roproxy.com/v1/games",
-        parameters = { ["universeIds"]: universeId }
+        parameters = { "universeIds": universeId }
     )
 
     if not data:
@@ -53,7 +61,7 @@ def getGameData(universeId: str) -> int | None:
 def convertMinutesToHours(minutes: int) -> float:
     return minutes / 60
 
-def writeJson(data: dict[ ["UniverseId"]: int, ["PlaceId"]: int, ["GameName"]: str, ["Creator"]: str, ["TimePlayed"]: str] ):
+def writeJson(data: dict[ "UniverseId": int, "PlaceId": int, "GameName": str, "Creator": str, "TimePlayed": str] ):
     with open("output.json" , "r", encoding="utf-8") as outputJson:
         fileData = json.loads(outputJson.read())
 
@@ -64,11 +72,11 @@ def writeJson(data: dict[ ["UniverseId"]: int, ["PlaceId"]: int, ["GameName"]: s
 
 def outputData(universeId: int, placeId: int, gameName: str, creatorName: str, hours: float) -> None:
     data = {
-        ["UniverseId"]: universeId,
-        ["PlaceId"]: placeId,
-        ["GameName"]: gameName,
-        ["Creator"]: creatorName,
-        ["TimePlayed"]: f"{hours:.2f} hours",
+        "UniverseId": universeId,
+        "PlaceId": placeId,
+        "GameName": gameName,
+        "Creator": creatorName,
+        "TimePlayed": f"{hours:.2f} hours",
     }
 
     writeJson(data)
@@ -93,58 +101,30 @@ def printExtra() -> None:
 with open("output.json" , "w", encoding="utf-8") as outputJson:
     outputJson.write(json.dumps([]))
 
-if isinstance(currentData[0], dict):
-    for i, v in enumerate(currentData, 1):
-        print(f"Processing {i}/{total}")
+for i, v in enumerate(currentData, 1):
+    universeId, timePlayed = formatData(v)
+    gameData = getGameData(universeId)
 
-        gameData = getGameData(v["id"])
+    print(f"Processing {i}/{total}")
 
-        if not gameData:
-            print(f"[!] Skipping universe {v["id"]}: unknown game")
-            continue
+    if not gameData:
+        print(f"[!] Skipping universe ID {universeId}: unknown game data")
+        continue
 
-        placeId = gameData.get("rootPlaceId", 0)
-        gameName = gameData.get("name", "Unknown Game")
-        creator = gameData.get("creator", {}})
-        creatorName = creator.get("name", "Unknown Creator")
-        hours = convertMinutesToHours(v["time_played"])
+    placeId = gameData.get("rootPlaceId", 0)
+    gameName = gameData.get("name", "Unknown Game")
+    creator = gameData.get("creator", {})
+    creatorName = creator.get("name", "Unknown Creator")
+    hours = convertMinutesToHours(timePlayed)
 
-        if creator != "Unknown Creator":
-            if creator["type"] == "User":
-                creatorName = f"@{creatorName}"
+    if creator.get("type") == "User":
+        creatorName = f"@{creatorName}"
 
-            if creator["hasVerifiedBadge"] == True:
-                creatorName = f"{creatorName} [/]"
+    if creator.get("hasVerifiedBadge"):
+        creatorName = f"{creatorName} [/]"
 
-        outputData(int(v["id"]), placeId, gameName, creatorName, hours)
-        time.sleep(0.2)
-elif isinstance(currentData[0], list):
-    for i, v in enumerate(currentData, 1):
-        print(f"Processing {i}/{total}")
-
-        gameData = getGameData(v[0])
-
-        if not gameData:
-            print(f"[!] Skipping universe ID: {v[0]}: unknown game")
-            continue
-
-        placeId = gameData.get("rootPlaceId", 0)
-        gameName = gameData.get("name", "Unknown Game")
-        creator = gameData.get("creator", {})
-        creatorName = creator.get("name", "Unknown Creator")
-        hours = convertMinutesToHours(v[1])
-
-        if creator != "Unknown Creator":
-            if creator["type"] == "User":
-                creatorName = f"@{creatorName}"
-
-            if creator["hasVerifiedBadge"] == True:
-                creatorName = f"{creatorName} [/]"
-
-        outputData(int(v[0]), placeId, gameName, creatorName, hours)
-        time.sleep(0.2)
-else:
-    print("An error ocurred when iterating through the raw data: invalid data structure")
+    outputData(int(universeId), placeId, gameName, creatorName, hours)
+    time.sleep(0.2)
 
 print(f"Completed processing {total}/{total}, the data was outputted into output.json")
 printExtra()
