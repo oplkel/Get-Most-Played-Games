@@ -109,7 +109,7 @@ if isinstance(currentData[0], dict):
         hours = convertMinutesToHours(v["time_played"])
 
         if creator != "Unknown Creator":
-            if creator["type"] == "user":
+            if creator["type"] == "User":
                 creatorName = f"@{creatorName}"
 
             if creator["hasVerifiedBadge"] == True:
