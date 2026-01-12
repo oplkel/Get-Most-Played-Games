@@ -27,7 +27,7 @@ This will be a more in-depth dive into how the project actually works than what 
 	
 </details>
 
-### Details
+### Details 📋
 - You will have to provide it with the data since I am pretty sure that RoPro uses your Roblox cookies to be able to fetch the data from its database
 - The more data, the more time it takes to process the data because of Roblox API rate limits
 - Progress is constantly outputted for progress updates
