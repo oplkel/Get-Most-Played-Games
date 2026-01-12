@@ -15,8 +15,8 @@ import pip._vendor.requests as requests
 import time
 import json
 
-maxRetries = 5
-requestDelay = 1
+maxRetries = 3 ## Default: 3
+requestDelay = 1 ## Default: 1
 
 with open("data.json", "r", encoding="utf-8") as dataJson:
     currentData = json.load(dataJson)
