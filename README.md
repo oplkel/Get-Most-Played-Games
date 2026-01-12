@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="60%" src="https://github.com/user-attachments/assets/a63d9e39-da60-40c9-a33f-57ecc3270848">
+  <img width="60%" alt="Get Most Played Games" src="https://github.com/user-attachments/assets/a63d9e39-da60-40c9-a33f-57ecc3270848">
 </p>
 
 ---
@@ -8,12 +8,32 @@ This project is pretty straight forward. The script uses the data given to it fr
 Why should you use this instead of the existing UI that shows this information already? While not giving you the best looking experience, this tool does give you more information than RoPro's built-in tool. RoPro's UI only gives you a max of the top 24 games, but this theoretically gives you all the information that you can get. The raw data RoPro gives you is only the universe ID and the playtime (in minutes) you have spent in that game. The processed information gives you the place ID (so you can easily get a link to that game), game name (for quick looking), and time played (in hours).
 
 ## Information ℹ️
+### How it works 🛠️
+This will be a more in-depth dive into how the project actually works than what is told above. It will first load all of `data.json`'s data and store it in the variable *currentData*. Next, it will define all of the required functions for processing the data and then actually start doing the processing. Finally, it will loop through each item in *currentData*, getting universe ID to fetch the game data and time played to convert from minutes to hours. If it finds that no *gameData* has been returned, it will print out that it is skipping that universe ID (no data will be logged for it) and continue looping. It will save all the data it needs to `output.json` into the following data structure:
 
+<details>
+<summary>Processed Data Structure</summary>
+	
+	[
+		{
+				"UniverseId": number,
+				"PlaceId": number,
+				"GameName": string,
+				"Creator": string,
+				"TimePlayed": string
+		},
+		...
+	]
+	
+</details>
+
+### Details
 - You will have to provide it with the data since I am pretty sure that RoPro uses your Roblox cookies to be able to fetch the data from its database
 - The more data, the more time it takes to process the data because of Roblox API rate limits
 - Progress is constantly outputted for progress updates
 - RoProxy API endpoints are used instead of Roblox's because it is more reliable
 - I am not affiliated with RoPro or Roblox
+- Comments are in `main.py` for you
 
 > [!NOTE]
 > - [/] after the creator's name means that they are verified
@@ -26,24 +46,18 @@ Why should you use this instead of the existing UI that shows this information a
 - (Optional) You have the Prettier VS Code extension installed
 
 ## Guides 📖
-
 ### How to fetch the raw data? 📊
-
 1. Open the developer console on the Roblox website.
 2. Go onto the console tab of the developer console.
 3. Change the time frame of the "Your Most Played" RoPro section of the Roblox home page to your desired option.
 4. Notice the console log? The console should have printed out multiple print statements (text in white). They should appear in this format:
-
 ```
 (number) [{...}, {...}, {...}, {...}, {...}, ...]
 ```
-
 **OR**
-
 ```
 (number) [Array(2), Array(2), Array(2), Array(2), Array(2), ...]
 ```
-
 (number) indicates how big that piece of data is so pick whichever print statement that you want to process.
 5. Right click on the print statement and copy object. 6. Paste into the `data.json` file.
 
@@ -57,11 +71,9 @@ Why should you use this instead of the existing UI that shows this information a
 7. (Optional) Right click and format document on the `output.json` file to make it look nicer.
 
 ## Example Usage ✨
-<p align="center">
-	<img height="400px" width="auto" src="https://github.com/user-attachments/assets/c9c362dc-4878-4aac-890e-9630715b1986"> <img height="400px" width="auto" src="https://github.com/user-attachments/assets/620d7bac-7ea3-43f7-8b8b-055346c8e0c6">
-</p>
-<p align="center">
-  <img height="400px" width="auto" src="https://github.com/user-attachments/assets/e21a46e4-0f36-4343-b1a7-70156bf3a79c">
-</p>
+I have followed the exact same steps as in the guide section; turning raw data into processed data. In the images below, there is the raw data, processed data, and terminal with all the print statements.
+<div align="center">
+	<img height="400px" width="auto" alt="data.json" src="https://github.com/user-attachments/assets/c9c362dc-4878-4aac-890e-9630715b1986"> <img height="400px" width="auto" alt="output.json" src="https://github.com/user-attachments/assets/620d7bac-7ea3-43f7-8b8b-055346c8e0c6"> <img height="400px" width="auto" alt="Terminal" src="https://github.com/user-attachments/assets/e21a46e4-0f36-4343-b1a7-70156bf3a79c">
+</div>
 
 oplkel :P
