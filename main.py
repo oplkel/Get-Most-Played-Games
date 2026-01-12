@@ -23,15 +23,16 @@ with open("data.json", "r", encoding="utf-8") as dataJson:
 
 total = len(currentData)
 
-def formatData(data: dict | list):
+def formatData(data: dict | list) -> tuple[str, int] | None:
     if isinstance(data, dict):
         return data["id"], data["time_played"]
     elif isinstance(data, list):
         return data[0], data[1]
     else:
         print("An error ocurred when iterating through the raw data: invalid data structure") ## Your data format is invalid; look at the guides in README.md.
+        return
 
-def fetch(url: str, parameters = None, retries = maxRetries, delay = requestDelay) -> dict | None:
+def fetch(url: str, parameters=None, retries=maxRetries, delay=requestDelay) -> dict | None:
     for attempt in range(retries):
         try:
             response = requests.get(url, params = parameters, timeout = 10)
