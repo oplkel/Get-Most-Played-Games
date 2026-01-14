@@ -28,12 +28,14 @@ This will be a more in-depth dive into how the project actually works than what 
 </details>
 
 ### Details
-- You will have to provide it with the data since I am pretty sure that RoPro uses your Roblox cookies to be able to fetch the data from its database
+- You will have to provide it with the data (since I think that RoPro uses your Roblox cookies to be able to fetch the data from its database)
 - The more data, the more time it takes to process the data because of Roblox API rate limits
 - Progress is constantly outputted for progress updates
-- RoProxy API endpoints are used instead of Roblox's because it is more reliable
-- I am not affiliated with RoPro or Roblox
+- [RoProxy](https://devforum.roblox.com/t/roproxycom-a-free-rotating-proxy-for-roblox-apis/1508367) API endpoints can be used instead of Roblox's because it is faster and more reliable (in theory)
 - Comments are in `main.py` for you
+
+> [!IMPORTANT]
+> This project is not affliliated, sponsored by, or endorsed by RoPro or Roblox. All trademarks, logos, and assets remain the exclusive property of their respective owners.
 
 > [!NOTE]
 > - [/] after the creator's name means that they are verified
