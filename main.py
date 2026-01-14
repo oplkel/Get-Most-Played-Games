@@ -11,11 +11,11 @@ Updated: January 10, 2026
 
 ## ik this is prob messy code but idc
 
-import pip._vendor.requests as requests
+import requests
 import time
 import json
 
-maxRetries = 3 ## Default: 3
+maxRetries = 5 ## Default: 5
 requestDelay = 1 ## Default: 1
 
 with open("data.json", "r", encoding="utf-8") as dataJson:
@@ -38,7 +38,7 @@ def fetch(url: str, parameters=None, retries=maxRetries, delay=requestDelay) -> 
             response = requests.get(url, params = parameters, timeout = 10)
             response.raise_for_status()
             return response.json()
-        except requests.RequestException as e:
+        except requests.RequestException as _:
             if attempt == retries - 1:
                 print(f"[X] Failed after {retries} retries: {url}") ## It failed to get game data after the max amount of retries
                 return
@@ -47,7 +47,7 @@ def fetch(url: str, parameters=None, retries=maxRetries, delay=requestDelay) -> 
 
 def getGameData(universeId: str) -> None | dict:
     data = fetch(
-        "https://games.roproxy.com/v1/games",
+        "https://games.roblox.com/v1/games", # Can be Roblox or RoProxy APIs
         parameters = { "universeIds": universeId }
     )
 
