@@ -65,7 +65,7 @@ This will be a more in-depth dive into how the project actually works than what 
 
 ### How to install?
 1. Go the [latest release](https://github.com/oplkel/Get-Most-Played-Games/releases/latest) of the project.
-2. Download the `GetMostPlayedGames.zip` file.
+2. Download the `Get-Most-Played-Games.zip` file.
 3. Extract and open the project folder in a code editor (VS Code recommended).
 4. Create a new terminal and run the following command to install the dependencies:
 ```
