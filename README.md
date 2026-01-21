@@ -51,7 +51,7 @@ This will be a more in-depth dive into how the project actually works than what 
 ### How to fetch the raw data?
 1. Open the developer console on the Roblox website.
 2. Go onto the console tab of the developer console.
-3. Change the time frame of the "Your Most Played" RoPro section of the Roblox home page to your desired option.
+3. Change the time frame of the "Your Most Played" RoPro section of the Roblox home page to your desired option (e.g. Past 30 Days).
 4. Notice the console log? The console should have printed out multiple print statements (text in white). They should appear in this format:
 ```
 (number) [{...}, {...}, {...}, {...}, {...}, ...]
@@ -61,7 +61,9 @@ This will be a more in-depth dive into how the project actually works than what 
 (number) [Array(2), Array(2), Array(2), Array(2), Array(2), ...]
 ```
 (number) indicates how big that piece of data is so pick whichever print statement that you want to process.
-5. Right click on the print statement and copy object. 6. Paste into the `data.json` file.
+
+5. Right click on the print statement and copy object.
+6. Paste into the `data.json` file.
 
 ### How to install?
 1. Go the [latest release](https://github.com/oplkel/Get-Most-Played-Games/releases/latest) of the project.
